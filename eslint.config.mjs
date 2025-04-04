@@ -1,16 +1,44 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import { defineConfig } from "eslint/config";
+import globals from "globals";
+import js from "@eslint/js";
+import tseslint from "typescript-eslint";
+import pluginReact from "eslint-plugin-react";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import stylistic from "@stylistic/eslint-plugin";
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+const configsStylistc = [
+    stylistic.configs.customize({
+        quotes: "double",
+        semi: true,
+        indent: 4,
+    }),
 ];
 
-export default eslintConfig;
+export default defineConfig([
+    configsStylistc,
+    { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"] },
+    {
+        files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
+        languageOptions: { globals: globals.browser },
+    },
+    {
+        files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
+        plugins: { js },
+        extends: ["js/recommended"],
+    },
+    tseslint.configs.recommended,
+    pluginReact.configs.flat.recommended,
+
+    {
+        plugins: {
+            "@stylistic": stylistic,
+            react: pluginReact,
+        },
+    },
+    {
+        rules: {
+            eqeqeq: ["error", "always", { null: "ignore" }],
+            "react/react-in-jsx-scope": "off",
+        },
+    },
+]);
