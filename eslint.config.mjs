@@ -1,44 +1,22 @@
-import { defineConfig } from "eslint/config";
-import globals from "globals";
-import js from "@eslint/js";
-import tseslint from "typescript-eslint";
-import pluginReact from "eslint-plugin-react";
+import js from '@eslint/js';
+import { FlatCompat } from '@eslint/eslintrc';
 
-import stylistic from "@stylistic/eslint-plugin";
+const compat = new FlatCompat({
+    // import.meta.dirname is available after Node.js v20.11.0
+    baseDirectory: import.meta.dirname,
+    recommendedConfig: js.configs.recommended,
+});
 
-const configsStylistc = [
-    stylistic.configs.customize({
-        quotes: "double",
-        semi: true,
-        indent: 4,
+const eslintConfig = [
+    ...compat.config({
+        extends: ['eslint:recommended', 'next', 'prettier'],
+        rules: {
+            semi: ['error'],
+            indent: ['error', 4],
+            'react/react-in-jsx-scope': 'off',
+            eqeqeq: ['error', 'always', { null: 'ignore' }],
+        },
     }),
 ];
 
-export default defineConfig([
-    configsStylistc,
-    { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"] },
-    {
-        files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
-        languageOptions: { globals: globals.browser },
-    },
-    {
-        files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
-        plugins: { js },
-        extends: ["js/recommended"],
-    },
-    tseslint.configs.recommended,
-    pluginReact.configs.flat.recommended,
-
-    {
-        plugins: {
-            "@stylistic": stylistic,
-            react: pluginReact,
-        },
-    },
-    {
-        rules: {
-            eqeqeq: ["error", "always", { null: "ignore" }],
-            "react/react-in-jsx-scope": "off",
-        },
-    },
-]);
+export default eslintConfig;
